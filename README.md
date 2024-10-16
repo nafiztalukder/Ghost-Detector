@@ -1,31 +1,49 @@
 # Ghost-Detector API 🎃👻
 
-### Welcome, fearless humans (and sneaky ghosts)!  
+### Welcome, fearless humans (and sneaky ghosts)!
 
 Halloween is here, and with it comes the most important question of our time: Are there ghosts lurking around, watching your every move? Worry no more, because **Ghost-Detector** has you covered! Whether you're a human trying to avoid spectral surprises or a ghost in need of some human hunting, this API has everything you need. This cutting-edge (and definitely *not* haunted) service is the perfect solution to detect spooky spirits or to give ghosts some much-needed help in avoiding humans (we can be scarier than they think).
-
-### Once upon a full moon night...
-In a world where humans and ghosts coexist, there's always been tension. Ghosts, forever curious about our world, love to peek at us from beyond the veil. Meanwhile, humans, unaware of their transparent neighbors, walk around oblivious. But no more! This Halloween, we bridge the ghost-human gap with **Ghost-Detector**—the only API that caters to *both* realms!  
-
-It's the perfect tool for those who want to keep their Halloween spooky but not *too* spooky. Whether you're a human looking to stay ghost-free or a ghost avoiding nosy humans, this API is for you!
 
 ---
 
 ## Documentation
+
+### Input Format for Image and Coordinates:
+- **Image**: The image file should be sent as `multipart/form-data`. Supported formats include JPEG and PNG.
+- **Coordinates**: The user’s location (latitude and longitude) must be sent in the request body as a JSON object with the keys `latitude` and `longitude`.
+
+---
 
 ### 1. `/detect` - Detect a Ghost 👻
 
 **Endpoint (Human Version):** `/detect`
 
 **Description:**  
-Are you feeling a little chill in the air? Wondering if there’s a ghost hiding in that photo of your dark, creepy attic? This endpoint allows users to upload an image (JPEG, PNG), alongside their location (latitude and longitude), and detects if there’s a ghost present. If detected, it will even tell you the *type* of ghost and provide a bounding box for the spooky spirit.
+Upload an image and provide your location to detect whether a ghost is present. If detected, the API will return the type of ghost and its bounding box.
 
 **Request:**
 - **Method:** `POST`
 - **Content-Type:** `multipart/form-data`
 - **Parameters:**
-  - `image`: The spooky image you want to check (formats: JPEG, PNG).
-  - `location`: Your location (latitude, longitude) where the image was taken.
+  - `image`: The image file (JPEG, PNG).
+  - `location`: A JSON object containing the user's location (latitude and longitude).
+
+**Example Request:**
+```json
+{
+  "location": {
+    "latitude": 40.712776,
+    "longitude": -74.005974
+  }
+}
+```
+
+**Example cURL Command:**
+```bash
+curl -X POST "https://ghost-detector.com/detect" \
+-F "image=@haunted-house.jpg" \
+-F "location={\"latitude\": 40.712776, \"longitude\": -74.005974}"
+```
 
 **Response:**
 ```json
@@ -48,12 +66,23 @@ Are you feeling a little chill in the air? Wondering if there’s a ghost hiding
 **Endpoint (Human Version):** `/sightings`
 
 **Description:**  
-Curious if there are ghosts around? Or just want to avoid the most haunted spots? With this endpoint, provide your current location and get a list of ghost sightings within a 100-meter radius. Perfect for planning your next haunted pub crawl or avoiding that cursed cemetery!
+Provide your current location to get a list of recent ghost sightings within a 100-meter radius. Great for planning your next haunted adventure—or avoiding it.
 
 **Request:**
 - **Method:** `GET`
+- **Content-Type:** `application/json`
 - **Parameters:**
-  - `location`: Your current location (latitude, longitude).
+  - `location`: A JSON object containing the user's current location (latitude and longitude).
+
+**Example Request:**
+```json
+{
+  "location": {
+    "latitude": 40.712776,
+    "longitude": -74.005974
+  }
+}
+```
 
 **Response:**
 ```json
@@ -80,12 +109,20 @@ Curious if there are ghosts around? Or just want to avoid the most haunted spots
 **Endpoint (Human Version):** `/ghost-info`
 
 **Description:**  
-You’ve encountered a ghost, but you’re not sure what kind it is? Or maybe you're just curious about a particular spectral species. This endpoint lets you retrieve detailed info on any ghost type, including fun facts like their favorite food (usually not pizza) and preferred haunting hours.
+Provide the type of ghost you're curious about, and get detailed information such as its favorite haunting time, origin story, and spooky trivia.
 
 **Request:**
 - **Method:** `GET`
+- **Content-Type:** `application/json`
 - **Parameters:**
-  - `ghost_type`: The type of ghost you want to know more about (e.g., "Poltergeist").
+  - `ghost_type`: The type of ghost to look up (e.g., "Poltergeist").
+
+**Example Request:**
+```json
+{
+  "ghost_type": "Poltergeist"
+}
+```
 
 **Response:**
 ```json
@@ -106,10 +143,14 @@ You’ve encountered a ghost, but you’re not sure what kind it is? Or maybe yo
 **Endpoint (Human Version):** `/users`
 
 **Description:**  
-Want to see who else is out there detecting ghosts? This endpoint lists all human users of the Ghost-Detector service, along with the number of ghost sightings they've encountered (brave souls!).
+List all the brave humans using Ghost-Detector, along with how many ghost sightings they’ve reported.
 
 **Request:**
 - **Method:** `GET`
+- **Content-Type:** `application/json`
+
+**Example Request:**
+(No body required for this request)
 
 **Response:**
 ```json
@@ -134,13 +175,20 @@ Want to see who else is out there detecting ghosts? This endpoint lists all huma
 **Endpoint (Ghost Version):** `/ghost/detect`
 
 **Description:**  
-For our spectral friends, this endpoint works similarly to `/detect` but instead helps *ghosts* detect if there are any pesky humans in their photos. The response includes details like the human’s age, identity (if they’re a celebrity, even better!), and how afraid they are (measured in "spook levels").
+For the ghostly folks out there—this works the same as the `/detect` endpoint for humans, but instead detects humans in a ghost's image. Ever wondered if there’s a human around you? Now you’ll know!
 
 **Request:**
 - **Method:** `POST`
 - **Content-Type:** `multipart/form-data`
 - **Parameters:**
-  - `image`: A spooky photo taken by a ghost (formats: JPEG, PNG).
+  - `image`: The spooky image (JPEG, PNG).
+  - No coordinates required (ghosts don’t need GPS).
+
+**Example cURL Command:**
+```bash
+curl -X POST "https://ghost-detector.com/ghost/detect" \
+-F "image=@haunted-house.jpg"
+```
 
 **Response:**
 ```json
@@ -152,31 +200,50 @@ For our spectral friends, this endpoint works similarly to `/detect` but instead
 }
 ```
 
-#### 6. `/spook-level` - Check Spookiness of an Area
+---
+
+### 6. `/spook-level` - Check Spookiness of an Area
 
 **Description:**  
-Ever wondered how haunted a particular area is? This endpoint gives you a “spook level” score from 1 to 10 for any given location, based on historical hauntings and spectral activity.
+This endpoint allows users (both human and ghost) to check how haunted a particular area is. The result is a "spook level" on a scale from 1 to 10.
 
 **Request:**
 - **Method:** `GET`
-- **Parameters:**  
-  - `location`: The location to check spookiness (latitude, longitude).
+- **Content-Type:** `application/json`
+- **Parameters:**
+  - `location`: The location to check spookiness (latitude and longitude).
+
+**Example Request:**
+```json
+{
+  "location": {
+    "latitude": 51.507351,
+    "longitude": -0.127758
+  }
+}
+```
 
 **Response:**
 ```json
 {
-  "spook_level": 8,
-  "description": "This place is seriously haunted. Proceed with caution!"
+  "spook_level": 9,
+  "description": "Extremely haunted. Watch your back!"
 }
 ```
 
-#### 7. `/ghost/spooky-name` - Get a Spooky Name for Your Next Haunting
+---
+
+### 7. `/ghost/spooky-name` - Generate a Spooky Name
 
 **Description:**  
-Every ghost needs a terrifying name! Ghosts can use this endpoint to generate a spooky pseudonym to use when haunting their human neighbors.
+For ghosts who need a cool new haunting alias, this endpoint generates a spooky name for their next haunting gig.
 
 **Request:**
 - **Method:** `GET`
+- **Content-Type:** `application/json`
+
+**Example Request:**
+(No body required for this request)
 
 **Response:**
 ```json
@@ -185,15 +252,28 @@ Every ghost needs a terrifying name! Ghosts can use this endpoint to generate a 
 }
 ```
 
-#### 8. `/ghost/sightings` - Ghosts Keeping Tabs on Human Sightings
+---
+
+### 8. `/ghost/sightings` - Track Human Sightings
 
 **Description:**  
-Just like humans track ghost sightings, ghosts can track humans. This endpoint lets ghosts see how many humans have recently been detected in their territory.
+This one’s for the ghosts! This endpoint lets them track how many humans have been spotted in their haunting grounds.
 
 **Request:**
 - **Method:** `GET`
-- **Parameters:**  
+- **Content-Type:** `application/json`
+- **Parameters:**
   - `location`: The ghost's current location (latitude, longitude).
+
+**Example Request:**
+```json
+{
+  "location": {
+    "latitude": 51.507351,
+    "longitude": -0.127758
+  }
+}
+```
 
 **Response:**
 ```json
@@ -213,13 +293,19 @@ Just like humans track ghost sightings, ghosts can track humans. This endpoint l
 }
 ```
 
-#### 9. `/ghost/favorite-haunts` - Track Your Favorite Haunting Spots
+---
+
+### 9. `/ghost/favorite-haunts` - Track Favorite Haunting Spots
 
 **Description:**  
-For ghosts who like to return to the same place again and again, this endpoint helps them track their favorite haunts and the number of scares they’ve given in each.
+For the nostalgic ghost who loves revisiting their favorite haunts, this endpoint helps them track the places they've scared the most humans.
 
 **Request:**
 - **Method:** `GET`
+- **Content-Type:** `application/json`
+
+**Example Request:**
+(No body required for this request)
 
 **Response:**
 ```json
@@ -237,20 +323,32 @@ For ghosts who like to return to the same place again and again, this endpoint h
 }
 ```
 
-#### 10. `/spirit-guide` - Summon a Spirit Guide for Help
+---
+
+### 10. `/spirit-guide` - Summon a Spirit Guide for Help
 
 **Description:**  
-Stuck between worlds? This endpoint allows ghosts (or very brave humans) to summon a helpful spirit guide who can answer existential questions about life, death, and why ghosts always seem to prefer old Victorian houses.
+Got a deep, spooky question about life, death, or why ghosts are obsessed with Victorian houses? This endpoint lets ghosts (or brave humans) summon a spirit guide for existential advice.
 
 **Request:**
 - **Method:** `POST`
-- **Parameters:**  
-  - `question`: Your deep, spooky question (e.g., "Why are haunted dolls always so creepy?").
+- **Content-Type:** `application/json`
+- **Parameters:**
+  - `question`: Your question for the spirit
+
+ guide (e.g., "Why are haunted dolls always so creepy?").
+
+**Example Request:**
+```json
+{
+  "question": "What happens if a ghost crosses the streams?"
+}
+```
 
 **Response:**
 ```json
 {
-  "answer": "Because they have seen too much... and they never blink."
+  "answer": "That's a bad idea... trust me."
 }
 ```
 
@@ -258,4 +356,4 @@ Stuck between worlds? This endpoint allows ghosts (or very brave humans) to summ
 
 ### Happy Hauntings! 🎃👻
 
-That’s all, folks! Whether you’re a human trying to stay ghost-free or a ghost looking to avoid the living, **Ghost-Detector** has your back (or your ectoplasmic tail). Be sure to play nice with the spirits, and remember—don’t cross the streams!
+And there you have it, the **Ghost-Detector** API. Whether you're a human trying to avoid ghosts or a ghost trying to keep tabs on humans, we’ve got you covered! Just remember, don't cross the streams... 👀
